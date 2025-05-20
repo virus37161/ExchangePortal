@@ -1,0 +1,15 @@
+{% extends 'default.html' %}
+
+{% csrf_token %}
+{% load custom_tags %}
+
+
+{%block navigation%}
+
+<img src="{{ ad.image.url }}"
+           alt="{{ ad.title }}">
+{%endblock%}
+
+{% block content %}
+
+{%endblock%}

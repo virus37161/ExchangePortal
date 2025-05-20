@@ -1,0 +1,129 @@
+{% extends 'default.html' %}
+
+{% csrf_token %}
+{% load custom_tags %}
+
+
+{%block navigation%}
+
+   <div class="dropdown">
+    <button class="btn btn-primary dropdown-toggle" type="button" onclick="toggleDropdown('categoryDropdown')">
+        Категории
+    </button>
+    <div class="dropdown-content" id="categoryDropdown">
+        <ul class="nav">
+            {% for category in categories %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/ads/?categories={{ category.id }}">{{ category.name }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+{% if user.is_authenticated %}
+<div class="dropdown">
+    <button class="btn btn-primary dropdown-toggle" type="button" onclick="toggleDropdown('userDropdown')">
+        {{ request.user.username }}
+    </button>
+    <div class="dropdown-content" id="userDropdown">
+        <ul class="nav">
+            <li class="nav-item">
+                <a class="nav-link" href="/ads/create/">Разместить</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/ads/showcase/">Мои вещи</a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="/ads/user_offers/">Предложения</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'logout_confirm'%}">Выйти</a>
+            </li>
+        </ul>
+    </div>
+</div>
+{% endif %}
+<br><br>
+{%endblock%}
+
+{% block content %}
+
+
+<div class="container">
+    <h1 class="my-4"><small></small></h1>
+<h3 class="mb-4">Ваша витрина</h3>
+    <div class="row">
+        {% for ad in ads %}
+        <div class="col-lg-4 col-sm-6 portfolio-item mb-4">
+            <div class="card h-100">
+
+  <div style="height: 250px; overflow: hidden; position: relative;">
+    {% if ad.image %}
+      <img src="{{ ad.image.url }}"
+           alt="{{ ad.title }}"
+           style="width: 100%;
+                  height: 100%;
+                  object-fit: cover;
+                  position: absolute;
+                  top: 0;
+                  left: 0;">
+    {% else %}
+      <div style="background: #f5f5f5; height: 100%; display: flex; align-items: center; justify-content: center;">
+        <span>Нет изображения</span>
+      </div>
+    {% endif %}
+  </div>
+
+                <div class="card-body">
+                    <h4 class="card-title">
+
+                       {{ ad.title }}
+                    </h4>
+
+                    <div class="card-text">
+                        <p class="mb-1"><strong>Продавец:</strong> {{ ad.user.username }}</p>
+                        <p class="mb-1">{{ ad.description|truncatechars:100 }}</p>
+                        <p class="mb-1"><strong>Состояние:</strong> {{ ad.condition }}</p>
+                        <p class="text-muted small mb-2">Опубликовано: {{ ad.created_at|date:"d.m.Y" }}</p>
+
+                        <div class="categories mb-2">
+                            {% for category in ad.categories.all %}
+                                <span class="badge badge-secondary mr-1">{{ category.name }}</span>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mt-2">
+                    <a href="/ads/update/{{ ad.id }}/" class="btn btn-warning btn-sm">Редактировать</a>
+                    <a href="/ads/delete/{{ ad.id }}/" class="btn btn-danger btn-sm">Удалить</a>
+                </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<div class="pagination-container">
+     {% if page_obj.has_previous %}
+       {# Для каждой ссылки пагинации указываем обработку через новый тег #}
+       <a href="?{% url_replace page=1 %}">1</a>
+       {% if page_obj.previous_page_number != 1 %}
+           ...
+           <a href="?{% url_replace page=page_obj.previous_page_number %}">{{ page_obj.previous_page_number }}</a>
+       {% endif %}
+   {% endif %}
+
+   {{ page_obj.number }}
+
+   {% if page_obj.has_next %}
+       <a href="?{% url_replace page=page_obj.next_page_number %}">{{ page_obj.next_page_number }}</a>
+       {% if paginator.num_pages != page_obj.next_page_number %}
+           ...
+           <a href="?{% url_replace page=page_obj.paginator.num_pages %}">{{ page_obj.paginator.num_pages }}</a>
+       {% endif %}
+   {% endif %}
+    </div>
+<hr>
+{%endblock%}

@@ -1,0 +1,40 @@
+services:
+  app:
+    build:
+      context: ./apps
+      dockerfile: Dockerfile
+    image: apps_prod:1.0.0
+    command: gunicorn apps.wsgi:application --bind 0.0.0.0:8000 --access-logfile '-'
+    expose:
+      - 8000
+    volumes:
+      - static_volume:/usr/src/apps/static
+      - media_volume:/usr/src/apps/media
+    restart: unless-stopped
+    env_file:
+      - ./apps/.env.dev
+    depends_on:
+      - db
+  db:
+    image: postgres:16-bookworm
+    volumes:
+      - ./data:/var/lib/postgresql/data/
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=django
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=apps
+  nginx:
+    build: ./nginx
+    image: nginx_prod:1.0.0
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/media
+    ports:
+      - 8001:80
+    depends_on:
+      - app
+
+volumes:
+  static_volume:
+  media_volume:
