@@ -6,7 +6,7 @@ ALLOWED_HOSTS=localhost 127.0.0.1
 CSRF_TRUSTED_ORIGINS=http://localhost:8001  
 POSTGRES_USER=django  
 POSTGRES_PASSWORD=password  
-POSTGRES_DB=shop  
+POSTGRES_DB=apps  
 POSTGRES_PORT=5432  
 
   
